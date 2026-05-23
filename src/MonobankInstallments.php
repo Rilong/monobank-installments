@@ -18,8 +18,6 @@ class MonobankInstallments
     private static string $storeSecret = '';
     private static string $baseUrl = 'https://u2.monobank.com.ua';
 
-    private MonobankClient $client;
-
     public static function configure(
         string $storeId,
         string $storeSecret,
@@ -30,9 +28,9 @@ class MonobankInstallments
         static::$baseUrl     = $baseUrl;
     }
 
-    public function __construct()
+    private function client(): MonobankClient
     {
-        $this->client = new MonobankClient(
+        return new MonobankClient(
             static::$storeId,
             static::$storeSecret,
             static::$baseUrl,
@@ -41,14 +39,14 @@ class MonobankInstallments
 
     public function createOrder(CreateOrderDTO $dto): CreateOrderResponse
     {
-        $data = $this->client->post('create', $dto->toArray());
+        $data = $this->client()->post('create', $dto->toArray());
 
         return new CreateOrderResponse($data['order_id']);
     }
 
     public function getState(string $orderId): OrderResponse
     {
-        $data = $this->client->post('state', ['order_id' => $orderId]);
+        $data = $this->client()->post('state', ['order_id' => $orderId]);
 
         return new OrderResponse(
             orderId: $data['order_id'],
@@ -60,7 +58,7 @@ class MonobankInstallments
 
     public function confirmOrder(string $orderId): OrderResponse
     {
-        $data = $this->client->post('confirm', ['order_id' => $orderId]);
+        $data = $this->client()->post('confirm', ['order_id' => $orderId]);
 
         return new OrderResponse(
             orderId: $data['order_id'],
@@ -72,7 +70,7 @@ class MonobankInstallments
 
     public function cancelOrder(string $orderId): OrderResponse
     {
-        $data = $this->client->post('reject', ['order_id' => $orderId]);
+        $data = $this->client()->post('reject', ['order_id' => $orderId]);
 
         return new OrderResponse(
             orderId: $data['order_id'],
@@ -84,21 +82,21 @@ class MonobankInstallments
 
     public function returnOrder(ReturnOrderDTO $dto): ReturnOrderResponse
     {
-        $data = $this->client->post('return', $dto->toArray());
+        $data = $this->client()->post('return', $dto->toArray());
 
         return new ReturnOrderResponse($data['status']);
     }
 
     public function getOrderData(string $orderId): OrderDataResponse
     {
-        $data = $this->client->post('data', ['order_id' => $orderId]);
+        $data = $this->client()->post('data', ['order_id' => $orderId]);
 
         return OrderDataResponse::from($data);
     }
 
     public function checkPaid(string $orderId): CheckPaidResponse
     {
-        $data = $this->client->post('check/paid', ['order_id' => $orderId]);
+        $data = $this->client()->post('check/paid', ['order_id' => $orderId]);
 
         return new CheckPaidResponse(
             fullyPaid: $data['fully_paid'],
