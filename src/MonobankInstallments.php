@@ -40,12 +40,14 @@ class MonobankInstallments
     public function createOrder(CreateOrderDTO $dto): CreateOrderResponse
     {
         $data = $this->client->post('create', $dto->toArray());
+       
         return new CreateOrderResponse($data['order_id']);
     }
 
     public function getState(string $orderId): OrderStateResponse
     {
         $data = $this->client->post('state', ['order_id' => $orderId]);
+       
         return new OrderStateResponse(
             $data['order_id'],
             OrderState::from($data['state']),
@@ -56,12 +58,14 @@ class MonobankInstallments
     public function confirmOrder(string $orderId): ConfirmOrderResponse
     {
         $data = $this->client->post('confirm', ['order_id' => $orderId]);
+
         return new ConfirmOrderResponse($data['success']);
     }
 
     public function cancelOrder(string $orderId): CancelOrderResponse
     {
         $data = $this->client->post('reject', ['order_id' => $orderId]);
+
         return new CancelOrderResponse($data['success']);
     }
 }
