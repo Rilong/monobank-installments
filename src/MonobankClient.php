@@ -19,7 +19,7 @@ class MonobankClient
         $signature = base64_encode(hash_hmac('sha256', $body, $this->storeSecret, true));
 
         $response = Http::withHeaders([
-            'store-id'  => $this->storeId,
+            'store-id' => $this->storeId,
             'signature' => $signature,
         ])
         ->withBody($body, 'application/json')

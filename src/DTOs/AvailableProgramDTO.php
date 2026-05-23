@@ -13,7 +13,7 @@ readonly class AvailableProgramDTO
     public function toArray(): array
     {
         return [
-            'type'                 => $this->type,
+            'type' => $this->type,
             'available_parts_count' => $this->availablePartsCount,
         ];
     }

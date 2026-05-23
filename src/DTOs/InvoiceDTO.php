@@ -13,7 +13,7 @@ readonly class InvoiceDTO
     {
         return [
             'number' => $this->number,
-            'date'   => $this->date,
+            'date' => $this->date,
         ];
     }
 }

@@ -13,8 +13,8 @@ readonly class OrderStateResponse implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'order_id'        => $this->orderId,
-            'state'           => $this->state,
+            'order_id' => $this->orderId,
+            'state' => $this->state,
             'order_sub_state' => $this->orderSubState,
         ];
     }
