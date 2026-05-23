@@ -59,7 +59,12 @@ class MonobankInstallments
     {
         $data = $this->client->post('confirm', ['order_id' => $orderId]);
 
-        return new ConfirmOrderResponse($data['success']);
+        return new ConfirmOrderResponse(
+            $data['order_id'],
+            OrderState::from($data['state']),
+            OrderSubState::from($data['order_sub_state']),
+            $data['message'] ?? null,
+        );
     }
 
     public function cancelOrder(string $orderId): CancelOrderResponse

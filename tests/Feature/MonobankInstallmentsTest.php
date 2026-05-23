@@ -109,17 +109,25 @@ it('getState() sends order_id in payload', function () {
     Http::assertSent(fn($req) => json_decode($req->body(), true)['order_id'] === 'uuid-123');
 });
 
-it('confirmOrder() returns ConfirmOrderResponse with success true', function () {
-    Http::fake(['*' => Http::response(['success' => true], 200)]);
+it('confirmOrder() returns ConfirmOrderResponse with state and subState', function () {
+    Http::fake(['*' => Http::response([
+        'order_id' => 'uuid-123',
+        'state' => 'SUCCESS',
+        'order_sub_state' => 'DONE',
+    ], 200)]);
 
     $response = (new MonobankInstallments())->confirmOrder('uuid-123');
 
     expect($response)->toBeInstanceOf(ConfirmOrderResponse::class)
-        ->and($response->success)->toBeTrue();
+        ->and($response->orderId)->toBe('uuid-123')
+        ->and($response->state)->toBe(OrderState::Success)
+        ->and($response->orderSubState)->toBe(OrderSubState::Done);
 });
 
 it('confirmOrder() posts to /api/order/confirm', function () {
-    Http::fake(['*' => Http::response(['success' => true], 200)]);
+    Http::fake(['*' => Http::response([
+        'order_id' => 'uuid-123', 'state' => 'SUCCESS', 'order_sub_state' => 'DONE',
+    ], 200)]);
 
     (new MonobankInstallments())->confirmOrder('uuid-123');
 

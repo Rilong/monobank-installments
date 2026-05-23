@@ -54,19 +54,36 @@ it('OrderStateResponse __toString returns json', function () {
 
 // --- ConfirmOrderResponse ---
 
-it('ConfirmOrderResponse holds success', function () {
-    $r = new ConfirmOrderResponse(true);
-    expect($r->success)->toBeTrue();
+it('ConfirmOrderResponse holds all fields', function () {
+    $r = new ConfirmOrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
+    expect($r->orderId)->toBe('uuid-1')
+        ->and($r->state)->toBe(OrderState::Success)
+        ->and($r->orderSubState)->toBe(OrderSubState::Done)
+        ->and($r->message)->toBeNull();
 });
 
 it('ConfirmOrderResponse jsonSerialize returns correct shape', function () {
-    $r = new ConfirmOrderResponse(true);
-    expect($r->jsonSerialize())->toBe(['success' => true]);
+    $r = new ConfirmOrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
+    expect($r->jsonSerialize())->toBe([
+        'order_id' => 'uuid-1',
+        'state' => 'SUCCESS',
+        'order_sub_state' => 'DONE',
+    ]);
+});
+
+it('ConfirmOrderResponse jsonSerialize includes message when set', function () {
+    $r = new ConfirmOrderResponse('uuid-1', OrderState::Fail, OrderSubState::Fail, 'Some error');
+    expect($r->jsonSerialize())->toBe([
+        'order_id' => 'uuid-1',
+        'state' => 'FAIL',
+        'order_sub_state' => 'FAIL',
+        'message' => 'Some error',
+    ]);
 });
 
 it('ConfirmOrderResponse __toString returns json', function () {
-    $r = new ConfirmOrderResponse(true);
-    expect((string) $r)->toBe('{"success":true}');
+    $r = new ConfirmOrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
+    expect((string) $r)->toBe('{"order_id":"uuid-1","state":"SUCCESS","order_sub_state":"DONE"}');
 });
 
 // --- CancelOrderResponse ---
