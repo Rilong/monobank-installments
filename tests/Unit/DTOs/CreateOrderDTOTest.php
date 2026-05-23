@@ -13,22 +13,38 @@ function makeCreateOrderDTO(): CreateOrderDTO
         storeOrderId: 'order-1',
         clientPhone: '+380991234567',
         totalSum: 1000.0,
-        invoice: new InvoiceDTO(number: 'INV-001', date: '2026-05-22'),
+        invoice: new InvoiceDTO(number: 'INV-001', date: '2026-05-22', source: 'INTERNET'),
         products: [new ProductDTO(name: 'Phone', count: 1, sum: 1000.0)],
         availablePrograms: [new AvailableProgramDTO(type: 'payment_installments', availablePartsCount: [3, 6, 9])],
         resultCallback: 'https://example.com/callback',
     );
 }
 
-it('InvoiceDTO holds number and date', function () {
-    $dto = new InvoiceDTO('INV-001', '2026-05-22');
+it('InvoiceDTO holds number, date and source', function () {
+    $dto = new InvoiceDTO('INV-001', '2026-05-22', 'INTERNET');
     expect($dto->number)->toBe('INV-001')
-        ->and($dto->date)->toBe('2026-05-22');
+        ->and($dto->date)->toBe('2026-05-22')
+        ->and($dto->source)->toBe('INTERNET');
 });
 
 it('InvoiceDTO toArray uses snake_case keys', function () {
-    $dto = new InvoiceDTO('INV-001', '2026-05-22');
-    expect($dto->toArray())->toBe(['number' => 'INV-001', 'date' => '2026-05-22']);
+    $dto = new InvoiceDTO('INV-001', '2026-05-22', 'INTERNET');
+    expect($dto->toArray())->toBe(['number' => 'INV-001', 'date' => '2026-05-22', 'source' => 'INTERNET']);
+});
+
+it('InvoiceDTO toArray includes point_id when set', function () {
+    $dto = new InvoiceDTO('INV-001', '2026-05-22', 'INTERNET', 'STORE-001');
+    expect($dto->toArray())->toBe([
+        'number' => 'INV-001',
+        'date' => '2026-05-22',
+        'source' => 'INTERNET',
+        'point_id' => 'STORE-001',
+    ]);
+});
+
+it('InvoiceDTO toArray omits point_id when null', function () {
+    $dto = new InvoiceDTO('INV-001', '2026-05-22', 'INTERNET');
+    expect($dto->toArray())->not->toHaveKey('point_id');
 });
 
 it('ProductDTO holds name, count, sum', function () {
@@ -71,7 +87,7 @@ it('CreateOrderDTO toArray produces correct API payload', function () {
         'store_order_id' => 'order-1',
         'client_phone' => '+380991234567',
         'total_sum' => 1000.0,
-        'invoice' => ['number' => 'INV-001', 'date' => '2026-05-22'],
+        'invoice' => ['number' => 'INV-001', 'date' => '2026-05-22', 'source' => 'INTERNET'],
         'products' => [['name' => 'Phone', 'count' => 1, 'sum' => 1000.0]],
         'available_programs' => [['type' => 'payment_installments', 'available_parts_count' => [3, 6, 9]]],
         'result_callback' => 'https://example.com/callback',
@@ -83,7 +99,7 @@ it('CreateOrderDTO toArray omits result_callback when null', function () {
         storeOrderId: 'order-2',
         clientPhone: '+380991234567',
         totalSum: 500.0,
-        invoice: new InvoiceDTO('INV-002', '2026-05-22'),
+        invoice: new InvoiceDTO('INV-002', '2026-05-22', 'INTERNET'),
         products: [new ProductDTO('Item', 1, 500.0)],
         availablePrograms: [new AvailableProgramDTO('payment_installments', [3])],
     );
@@ -137,7 +153,7 @@ it('CreateOrderDTO toArray includes additional_params when set', function () {
         storeOrderId: 'order-3',
         clientPhone: '+380991234567',
         totalSum: 500.0,
-        invoice: new InvoiceDTO('INV-003', '2026-05-22'),
+        invoice: new InvoiceDTO('INV-003', '2026-05-22', 'INTERNET'),
         products: [new ProductDTO('Item', 1, 500.0)],
         availablePrograms: [new AvailableProgramDTO('payment_installments', [3])],
         additionalParams: new AdditionalParamsDTO(sellerPhone: '+380991111111'),
@@ -151,7 +167,7 @@ it('CreateOrderDTO toArray includes financial_company_merchant_info when set', f
         storeOrderId: 'order-4',
         clientPhone: '+380991234567',
         totalSum: 500.0,
-        invoice: new InvoiceDTO('INV-004', '2026-05-22'),
+        invoice: new InvoiceDTO('INV-004', '2026-05-22', 'INTERNET'),
         products: [new ProductDTO('Item', 1, 500.0)],
         availablePrograms: [new AvailableProgramDTO('payment_installments', [3])],
         financialCompanyMerchantInfo: new FinancialCompanyMerchantInfoDTO(storeName: 'Shop', edrpouCode: '12345678', ibanAccount: 'UA123'),
@@ -168,7 +184,7 @@ it('CreateOrderDTO toArray omits additional_params and financial_company_merchan
         storeOrderId: 'order-5',
         clientPhone: '+380991234567',
         totalSum: 500.0,
-        invoice: new InvoiceDTO('INV-005', '2026-05-22'),
+        invoice: new InvoiceDTO('INV-005', '2026-05-22', 'INTERNET'),
         products: [new ProductDTO('Item', 1, 500.0)],
         availablePrograms: [new AvailableProgramDTO('payment_installments', [3])],
     );
