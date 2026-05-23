@@ -91,12 +91,21 @@ Initiates a new installment order for a client. Returns an `orderId` that you us
 | `storeOrderId` | `string` | yes | Your internal order ID |
 | `clientPhone` | `string` | yes | Client phone in `+380XXXXXXXXX` format |
 | `totalSum` | `float` | yes | Total order amount |
-| `invoice` | `InvoiceDTO` | yes | Invoice number and date |
+| `invoice` | `InvoiceDTO` | yes | Invoice number, date, source channel, and optional point ID |
 | `products` | `ProductDTO[]` | yes | List of products in the order |
 | `availablePrograms` | `AvailableProgramDTO[]` | yes | Installment programs to offer the client |
 | `resultCallback` | `string` | no | URL Monobank will POST the result to |
 | `additionalParams` | `AdditionalParamsDTO` | no | Seller phone, VAT, external initial sum |
 | `financialCompanyMerchantInfo` | `FinancialCompanyMerchantInfoDTO` | no | Financial company merchant details |
+
+`InvoiceDTO` fields:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `number` | `string` | yes | Invoice number |
+| `date` | `string` | yes | Invoice date (`YYYY-MM-DD`) |
+| `source` | `string` | yes | Payment channel (e.g. `INTERNET`, `TERMINAL`) |
+| `pointId` | `string` | no | Store point identifier |
 
 ```php
 use Rilong\MonobankInstallments\DTOs\AvailableProgramDTO;
@@ -109,12 +118,16 @@ $response = MonobankInstallments::createOrder(new CreateOrderDTO(
     storeOrderId: 'order-123',
     clientPhone: '+380991234561',
     totalSum: 12000.00,
-    invoice: new InvoiceDTO(number: 'INV-001', date: '2024-01-15'),
+    invoice: new InvoiceDTO(
+        number: 'INV-001',
+        date: '2024-01-15',
+        source: 'INTERNET',
+    ),
     products: [
         new ProductDTO(name: 'Laptop', count: 1, sum: 12000.00),
     ],
     availablePrograms: [
-        new AvailableProgramDTO(type: 'installment', availablePartsCount: [3, 6, 12]),
+        new AvailableProgramDTO(type: 'payment_installments', availablePartsCount: [3, 6, 12]),
     ],
     resultCallback: 'https://example.com/callback',
 ));
@@ -390,12 +403,21 @@ use Rilong\MonobankInstallments\Facades\MonobankInstallments;
 | `storeOrderId` | `string` | так | Внутрішній ID заявки магазину |
 | `clientPhone` | `string` | так | Телефон клієнта у форматі `+380XXXXXXXXX` |
 | `totalSum` | `float` | так | Загальна сума замовлення |
-| `invoice` | `InvoiceDTO` | так | Номер та дата накладної |
+| `invoice` | `InvoiceDTO` | так | Номер, дата, канал прийому платежу та необов'язковий ID точки продажу |
 | `products` | `ProductDTO[]` | так | Список товарів у замовленні |
 | `availablePrograms` | `AvailableProgramDTO[]` | так | Програми розстрочки для клієнта |
 | `resultCallback` | `string` | ні | URL для POST-сповіщення від Monobank |
 | `additionalParams` | `AdditionalParamsDTO` | ні | Телефон продавця, ПДВ, зовнішня початкова сума |
 | `financialCompanyMerchantInfo` | `FinancialCompanyMerchantInfoDTO` | ні | Дані мерчанта фінансової компанії |
+
+Поля `InvoiceDTO`:
+
+| Поле | Тип | Обов'язкове | Опис |
+|---|---|---|---|
+| `number` | `string` | так | Номер накладної |
+| `date` | `string` | так | Дата накладної (`YYYY-MM-DD`) |
+| `source` | `string` | так | Канал прийому платежу (наприклад, `INTERNET`, `TERMINAL`) |
+| `pointId` | `string` | ні | Ідентифікатор точки продажу |
 
 ```php
 use Rilong\MonobankInstallments\DTOs\AvailableProgramDTO;
@@ -408,12 +430,16 @@ $response = MonobankInstallments::createOrder(new CreateOrderDTO(
     storeOrderId: 'order-123',
     clientPhone: '+380991234561',
     totalSum: 12000.00,
-    invoice: new InvoiceDTO(number: 'INV-001', date: '2024-01-15'),
+    invoice: new InvoiceDTO(
+        number: 'INV-001',
+        date: '2024-01-15',
+        source: 'INTERNET',
+    ),
     products: [
         new ProductDTO(name: 'Ноутбук', count: 1, sum: 12000.00),
     ],
     availablePrograms: [
-        new AvailableProgramDTO(type: 'installment', availablePartsCount: [3, 6, 12]),
+        new AvailableProgramDTO(type: 'payment_installments', availablePartsCount: [3, 6, 12]),
     ],
     resultCallback: 'https://example.com/callback',
 ));
