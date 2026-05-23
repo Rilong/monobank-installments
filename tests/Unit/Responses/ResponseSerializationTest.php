@@ -2,10 +2,8 @@
 
 use Rilong\MonobankInstallments\Enums\OrderState;
 use Rilong\MonobankInstallments\Enums\OrderSubState;
-use Rilong\MonobankInstallments\Responses\CancelOrderResponse;
-use Rilong\MonobankInstallments\Responses\ConfirmOrderResponse;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
-use Rilong\MonobankInstallments\Responses\OrderStateResponse;
+use Rilong\MonobankInstallments\Responses\OrderResponse;
 
 // --- CreateOrderResponse ---
 
@@ -29,41 +27,18 @@ it('CreateOrderResponse is json_encodable', function () {
     expect(json_encode($r))->toBe('{"order_id":"uuid-123"}');
 });
 
-// --- OrderStateResponse ---
+// --- OrderResponse ---
 
-it('OrderStateResponse holds all fields', function () {
-    $r = new OrderStateResponse('uuid-1', OrderState::InProcess, OrderSubState::WaitingForClient);
+it('OrderResponse holds all fields', function () {
+    $r = new OrderResponse('uuid-1', OrderState::InProcess, OrderSubState::WaitingForClient);
     expect($r->orderId)->toBe('uuid-1')
         ->and($r->state)->toBe(OrderState::InProcess)
-        ->and($r->orderSubState)->toBe(OrderSubState::WaitingForClient);
-});
-
-it('OrderStateResponse jsonSerialize returns snake_case keys', function () {
-    $r = new OrderStateResponse('uuid-1', OrderState::Success, OrderSubState::Done);
-    expect($r->jsonSerialize())->toBe([
-        'order_id' => 'uuid-1',
-        'state' => 'SUCCESS',
-        'order_sub_state' => 'DONE',
-    ]);
-});
-
-it('OrderStateResponse __toString returns json', function () {
-    $r = new OrderStateResponse('uuid-1', OrderState::Success, OrderSubState::Done);
-    expect((string) $r)->toBe('{"order_id":"uuid-1","state":"SUCCESS","order_sub_state":"DONE"}');
-});
-
-// --- ConfirmOrderResponse ---
-
-it('ConfirmOrderResponse holds all fields', function () {
-    $r = new ConfirmOrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
-    expect($r->orderId)->toBe('uuid-1')
-        ->and($r->state)->toBe(OrderState::Success)
-        ->and($r->orderSubState)->toBe(OrderSubState::Done)
+        ->and($r->orderSubState)->toBe(OrderSubState::WaitingForClient)
         ->and($r->message)->toBeNull();
 });
 
-it('ConfirmOrderResponse jsonSerialize returns correct shape', function () {
-    $r = new ConfirmOrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
+it('OrderResponse jsonSerialize returns snake_case keys', function () {
+    $r = new OrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
     expect($r->jsonSerialize())->toBe([
         'order_id' => 'uuid-1',
         'state' => 'SUCCESS',
@@ -71,8 +46,8 @@ it('ConfirmOrderResponse jsonSerialize returns correct shape', function () {
     ]);
 });
 
-it('ConfirmOrderResponse jsonSerialize includes message when set', function () {
-    $r = new ConfirmOrderResponse('uuid-1', OrderState::Fail, OrderSubState::Fail, 'Some error');
+it('OrderResponse jsonSerialize includes message when set', function () {
+    $r = new OrderResponse('uuid-1', OrderState::Fail, OrderSubState::Fail, 'Some error');
     expect($r->jsonSerialize())->toBe([
         'order_id' => 'uuid-1',
         'state' => 'FAIL',
@@ -81,24 +56,12 @@ it('ConfirmOrderResponse jsonSerialize includes message when set', function () {
     ]);
 });
 
-it('ConfirmOrderResponse __toString returns json', function () {
-    $r = new ConfirmOrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
+it('OrderResponse __toString returns json', function () {
+    $r = new OrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
     expect((string) $r)->toBe('{"order_id":"uuid-1","state":"SUCCESS","order_sub_state":"DONE"}');
 });
 
-// --- CancelOrderResponse ---
-
-it('CancelOrderResponse holds success', function () {
-    $r = new CancelOrderResponse(true);
-    expect($r->success)->toBeTrue();
-});
-
-it('CancelOrderResponse jsonSerialize returns correct shape', function () {
-    $r = new CancelOrderResponse(true);
-    expect($r->jsonSerialize())->toBe(['success' => true]);
-});
-
-it('CancelOrderResponse __toString returns json', function () {
-    $r = new CancelOrderResponse(true);
-    expect((string) $r)->toBe('{"success":true}');
+it('OrderResponse is json_encodable', function () {
+    $r = new OrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
+    expect(json_encode($r))->toBe('{"order_id":"uuid-1","state":"SUCCESS","order_sub_state":"DONE"}');
 });

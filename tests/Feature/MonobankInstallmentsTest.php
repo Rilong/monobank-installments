@@ -9,10 +9,8 @@ use Rilong\MonobankInstallments\Enums\OrderState;
 use Rilong\MonobankInstallments\Enums\OrderSubState;
 use Rilong\MonobankInstallments\Exceptions\MonobankInstallmentsException;
 use Rilong\MonobankInstallments\MonobankInstallments;
-use Rilong\MonobankInstallments\Responses\CancelOrderResponse;
-use Rilong\MonobankInstallments\Responses\ConfirmOrderResponse;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
-use Rilong\MonobankInstallments\Responses\OrderStateResponse;
+use Rilong\MonobankInstallments\Responses\OrderResponse;
 
 function makeDTO(): CreateOrderDTO
 {
@@ -84,16 +82,16 @@ it('createOrder() throws MonobankInstallmentsException on API error', function (
         ->toThrow(MonobankInstallmentsException::class, 'Validation failed');
 });
 
-it('getState() returns OrderStateResponse', function () {
+it('getState() returns OrderResponse', function () {
     Http::fake(['*' => Http::response([
-        'order_id'        => 'uuid-123',
-        'state'           => 'IN_PROCESS',
+        'order_id' => 'uuid-123',
+        'state' => 'IN_PROCESS',
         'order_sub_state' => 'WAITING_FOR_CLIENT',
     ], 200)]);
 
     $response = (new MonobankInstallments())->getState('uuid-123');
 
-    expect($response)->toBeInstanceOf(OrderStateResponse::class)
+    expect($response)->toBeInstanceOf(OrderResponse::class)
         ->and($response->orderId)->toBe('uuid-123')
         ->and($response->state)->toBe(OrderState::InProcess)
         ->and($response->orderSubState)->toBe(OrderSubState::WaitingForClient);
@@ -109,7 +107,7 @@ it('getState() sends order_id in payload', function () {
     Http::assertSent(fn($req) => json_decode($req->body(), true)['order_id'] === 'uuid-123');
 });
 
-it('confirmOrder() returns ConfirmOrderResponse with state and subState', function () {
+it('confirmOrder() returns OrderResponse with state and subState', function () {
     Http::fake(['*' => Http::response([
         'order_id' => 'uuid-123',
         'state' => 'SUCCESS',
@@ -118,7 +116,7 @@ it('confirmOrder() returns ConfirmOrderResponse with state and subState', functi
 
     $response = (new MonobankInstallments())->confirmOrder('uuid-123');
 
-    expect($response)->toBeInstanceOf(ConfirmOrderResponse::class)
+    expect($response)->toBeInstanceOf(OrderResponse::class)
         ->and($response->orderId)->toBe('uuid-123')
         ->and($response->state)->toBe(OrderState::Success)
         ->and($response->orderSubState)->toBe(OrderSubState::Done);
@@ -134,17 +132,25 @@ it('confirmOrder() posts to /api/order/confirm', function () {
     Http::assertSent(fn($req) => str_ends_with($req->url(), '/api/order/confirm'));
 });
 
-it('cancelOrder() returns CancelOrderResponse with success true', function () {
-    Http::fake(['*' => Http::response(['success' => true], 200)]);
+it('cancelOrder() returns OrderResponse with state and subState', function () {
+    Http::fake(['*' => Http::response([
+        'order_id' => 'uuid-123',
+        'state' => 'FAIL',
+        'order_sub_state' => 'REJECTED_BY_CLIENT',
+    ], 200)]);
 
     $response = (new MonobankInstallments())->cancelOrder('uuid-123');
 
-    expect($response)->toBeInstanceOf(CancelOrderResponse::class)
-        ->and($response->success)->toBeTrue();
+    expect($response)->toBeInstanceOf(OrderResponse::class)
+        ->and($response->orderId)->toBe('uuid-123')
+        ->and($response->state)->toBe(OrderState::Fail)
+        ->and($response->orderSubState)->toBe(OrderSubState::RejectedByClient);
 });
 
 it('cancelOrder() posts to /api/order/reject', function () {
-    Http::fake(['*' => Http::response(['success' => true], 200)]);
+    Http::fake(['*' => Http::response([
+        'order_id' => 'uuid-123', 'state' => 'FAIL', 'order_sub_state' => 'REJECTED_BY_CLIENT',
+    ], 200)]);
 
     (new MonobankInstallments())->cancelOrder('uuid-123');
 
