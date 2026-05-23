@@ -20,7 +20,7 @@ function makeDTO(): CreateOrderDTO
         totalSum: 1000.0,
         invoice: new InvoiceDTO('INV-001', '2026-05-22'),
         products: [new ProductDTO('Phone', 1, 1000.0)],
-        availablePrograms: [new AvailableProgramDTO(6)],
+        availablePrograms: [new AvailableProgramDTO('payment_installments', [3, 6, 9])],
     );
 }
 

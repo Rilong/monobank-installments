@@ -13,7 +13,7 @@ function makeCreateOrderDTO(): CreateOrderDTO
         totalSum: 1000.0,
         invoice: new InvoiceDTO(number: 'INV-001', date: '2026-05-22'),
         products: [new ProductDTO(name: 'Phone', count: 1, sum: 1000.0)],
-        availablePrograms: [new AvailableProgramDTO(partsCount: 6)],
+        availablePrograms: [new AvailableProgramDTO(type: 'payment_installments', availablePartsCount: [3, 6, 9])],
         resultCallback: 'https://example.com/callback',
     );
 }
@@ -41,14 +41,18 @@ it('ProductDTO toArray returns correct shape', function () {
     expect($dto->toArray())->toBe(['name' => 'Phone', 'count' => 1, 'sum' => 1000.0]);
 });
 
-it('AvailableProgramDTO holds partsCount', function () {
-    $dto = new AvailableProgramDTO(6);
-    expect($dto->partsCount)->toBe(6);
+it('AvailableProgramDTO holds type and availablePartsCount', function () {
+    $dto = new AvailableProgramDTO('payment_installments', [3, 6, 9]);
+    expect($dto->type)->toBe('payment_installments')
+        ->and($dto->availablePartsCount)->toBe([3, 6, 9]);
 });
 
-it('AvailableProgramDTO toArray uses snake_case key', function () {
-    $dto = new AvailableProgramDTO(6);
-    expect($dto->toArray())->toBe(['parts_count' => 6]);
+it('AvailableProgramDTO toArray uses correct API keys', function () {
+    $dto = new AvailableProgramDTO('payment_installments', [3, 6, 9]);
+    expect($dto->toArray())->toBe([
+        'type'                  => 'payment_installments',
+        'available_parts_count' => [3, 6, 9],
+    ]);
 });
 
 it('CreateOrderDTO holds all fields', function () {
@@ -67,7 +71,7 @@ it('CreateOrderDTO toArray produces correct API payload', function () {
         'total_sum'          => 1000.0,
         'invoice'            => ['number' => 'INV-001', 'date' => '2026-05-22'],
         'products'           => [['name' => 'Phone', 'count' => 1, 'sum' => 1000.0]],
-        'available_programs' => [['parts_count' => 6]],
+        'available_programs' => [['type' => 'payment_installments', 'available_parts_count' => [3, 6, 9]]],
         'result_callback'    => 'https://example.com/callback',
     ]);
 });
@@ -79,7 +83,7 @@ it('CreateOrderDTO toArray omits result_callback when null', function () {
         totalSum: 500.0,
         invoice: new InvoiceDTO('INV-002', '2026-05-22'),
         products: [new ProductDTO('Item', 1, 500.0)],
-        availablePrograms: [new AvailableProgramDTO(3)],
+        availablePrograms: [new AvailableProgramDTO('payment_installments', [3])],
     );
     expect($dto->toArray())->not->toHaveKey('result_callback');
 });
