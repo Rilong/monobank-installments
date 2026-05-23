@@ -9,8 +9,12 @@ use Rilong\MonobankInstallments\Enums\OrderState;
 use Rilong\MonobankInstallments\Enums\OrderSubState;
 use Rilong\MonobankInstallments\Exceptions\MonobankInstallmentsException;
 use Rilong\MonobankInstallments\MonobankInstallments;
+use Rilong\MonobankInstallments\DTOs\ReturnAdditionalParamsDTO;
+use Rilong\MonobankInstallments\DTOs\ReturnOrderDTO;
+use Rilong\MonobankInstallments\Enums\ReturnMoneyTo;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
 use Rilong\MonobankInstallments\Responses\OrderResponse;
+use Rilong\MonobankInstallments\Responses\ReturnOrderResponse;
 
 function makeDTO(): CreateOrderDTO
 {
@@ -155,4 +159,73 @@ it('cancelOrder() posts to /api/order/reject', function () {
     (new MonobankInstallments())->cancelOrder('uuid-123');
 
     Http::assertSent(fn($req) => str_ends_with($req->url(), '/api/order/reject'));
+});
+
+it('returnOrder() returns ReturnOrderResponse with status OK', function () {
+    Http::fake(['*' => Http::response(['status' => 'OK'], 200)]);
+
+    $dto = new ReturnOrderDTO(
+        orderId: 'fa4a8249-336e-4e6d-9b85-79bc8be62377',
+        sum: 1250.5,
+        storeReturnId: 'RET-12345',
+        returnMoneyTo: ReturnMoneyTo::Card,
+        additionalParams: new ReturnAdditionalParamsDTO(nds: 208.42),
+    );
+
+    $response = (new MonobankInstallments())->returnOrder($dto);
+
+    expect($response)->toBeInstanceOf(ReturnOrderResponse::class)
+        ->and($response->status)->toBe('OK');
+});
+
+it('returnOrder() posts to /api/order/return', function () {
+    Http::fake(['*' => Http::response(['status' => 'OK'], 200)]);
+
+    $dto = new ReturnOrderDTO(
+        orderId: 'uuid',
+        sum: 100.0,
+        storeReturnId: 'RET-1',
+        returnMoneyTo: ReturnMoneyTo::Card,
+    );
+
+    (new MonobankInstallments())->returnOrder($dto);
+
+    Http::assertSent(fn($req) => str_ends_with($req->url(), '/api/order/return'));
+});
+
+it('returnOrder() sends correct payload', function () {
+    Http::fake(['*' => Http::response(['status' => 'OK'], 200)]);
+
+    $dto = new ReturnOrderDTO(
+        orderId: 'fa4a8249-336e-4e6d-9b85-79bc8be62377',
+        sum: 1250.5,
+        storeReturnId: 'RET-12345',
+        returnMoneyTo: ReturnMoneyTo::Card,
+        additionalParams: new ReturnAdditionalParamsDTO(nds: 208.42),
+    );
+
+    (new MonobankInstallments())->returnOrder($dto);
+
+    Http::assertSent(function ($req) {
+        $body = json_decode($req->body(), true);
+        return $body['order_id'] === 'fa4a8249-336e-4e6d-9b85-79bc8be62377'
+            && $body['sum'] == 1250.5
+            && $body['store_return_id'] === 'RET-12345'
+            && $body['return_money_to_card'] === true
+            && $body['additional_params']['nds'] == 208.42;
+    });
+});
+
+it('returnOrder() throws MonobankInstallmentsException on API error', function () {
+    Http::fake(['*' => Http::response(['message' => 'Order not found'], 404)]);
+
+    $dto = new ReturnOrderDTO(
+        orderId: 'uuid',
+        sum: 100.0,
+        storeReturnId: 'RET-1',
+        returnMoneyTo: ReturnMoneyTo::Card,
+    );
+
+    expect(fn() => (new MonobankInstallments())->returnOrder($dto))
+        ->toThrow(MonobankInstallmentsException::class, 'Order not found');
 });

@@ -3,10 +3,12 @@
 namespace Rilong\MonobankInstallments;
 
 use Rilong\MonobankInstallments\DTOs\CreateOrderDTO;
+use Rilong\MonobankInstallments\DTOs\ReturnOrderDTO;
 use Rilong\MonobankInstallments\Enums\OrderState;
 use Rilong\MonobankInstallments\Enums\OrderSubState;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
 use Rilong\MonobankInstallments\Responses\OrderResponse;
+use Rilong\MonobankInstallments\Responses\ReturnOrderResponse;
 
 class MonobankInstallments
 {
@@ -76,5 +78,12 @@ class MonobankInstallments
             OrderSubState::from($data['order_sub_state']),
             $data['message'] ?? null,
         );
+    }
+
+    public function returnOrder(ReturnOrderDTO $dto): ReturnOrderResponse
+    {
+        $data = $this->client->post('return', $dto->toArray());
+
+        return new ReturnOrderResponse($data['status']);
     }
 }
