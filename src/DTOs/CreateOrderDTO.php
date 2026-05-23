@@ -14,23 +14,22 @@ readonly class CreateOrderDTO
         /** @var AvailableProgramDTO[] */
         public array $availablePrograms,
         public ?string $resultCallback = null,
+        public ?AdditionalParamsDTO $additionalParams = null,
+        public ?FinancialCompanyMerchantInfoDTO $financialCompanyMerchantInfo = null,
     ) {}
 
     public function toArray(): array
     {
-        $payload = [
+        return array_filter([
             'store_order_id' => $this->storeOrderId,
             'client_phone' => $this->clientPhone,
             'total_sum' => $this->totalSum,
             'invoice' => $this->invoice->toArray(),
             'products' => array_map(fn(ProductDTO $p) => $p->toArray(), $this->products),
             'available_programs' => array_map(fn(AvailableProgramDTO $p) => $p->toArray(), $this->availablePrograms),
-        ];
-
-        if ($this->resultCallback !== null) {
-            $payload['result_callback'] = $this->resultCallback;
-        }
-
-        return $payload;
+            'result_callback' => $this->resultCallback,
+            'additional_params' => $this->additionalParams?->toArray(),
+            'financial_company_merchant_info' => $this->financialCompanyMerchantInfo?->toArray(),
+        ], fn($v) => $v !== null);
     }
 }
