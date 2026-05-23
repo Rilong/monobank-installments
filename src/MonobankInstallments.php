@@ -50,10 +50,10 @@ class MonobankInstallments
         $data = $this->client->post('state', ['order_id' => $orderId]);
 
         return new OrderResponse(
-            $data['order_id'],
-            OrderState::from($data['state']),
-            OrderSubState::from($data['order_sub_state']),
-            $data['message'] ?? null,
+            orderId: $data['order_id'],
+            state: OrderState::from($data['state']),
+            orderSubState: OrderSubState::from($data['order_sub_state']),
+            message: $data['message'] ?? null,
         );
     }
 
@@ -62,10 +62,10 @@ class MonobankInstallments
         $data = $this->client->post('confirm', ['order_id' => $orderId]);
 
         return new OrderResponse(
-            $data['order_id'],
-            OrderState::from($data['state']),
-            OrderSubState::from($data['order_sub_state']),
-            $data['message'] ?? null,
+            orderId: $data['order_id'],
+            state: OrderState::from($data['state']),
+            orderSubState: OrderSubState::from($data['order_sub_state']),
+            message: $data['message'] ?? null,
         );
     }
 
@@ -74,10 +74,10 @@ class MonobankInstallments
         $data = $this->client->post('reject', ['order_id' => $orderId]);
 
         return new OrderResponse(
-            $data['order_id'],
-            OrderState::from($data['state']),
-            OrderSubState::from($data['order_sub_state']),
-            $data['message'] ?? null,
+            orderId: $data['order_id'],
+            state: OrderState::from($data['state']),
+            orderSubState: OrderSubState::from($data['order_sub_state']),
+            message: $data['message'] ?? null,
         );
     }
 
