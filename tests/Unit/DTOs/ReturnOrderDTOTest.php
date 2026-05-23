@@ -22,9 +22,9 @@ it('ReturnOrderDTO toArray produces correct payload with Card', function () {
         returnMoneyTo: ReturnMoneyTo::Card,
     );
     expect($dto->toArray())->toBe([
-        'order_id'             => 'fa4a8249-336e-4e6d-9b85-79bc8be62377',
-        'sum'                  => 1250.5,
-        'store_return_id'      => 'RET-12345',
+        'order_id' => 'fa4a8249-336e-4e6d-9b85-79bc8be62377',
+        'sum' => 1250.5,
+        'store_return_id' => 'RET-12345',
         'return_money_to_card' => true,
     ]);
 });

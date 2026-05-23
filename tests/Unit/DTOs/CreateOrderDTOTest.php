@@ -52,7 +52,7 @@ it('AvailableProgramDTO holds type and availablePartsCount', function () {
 it('AvailableProgramDTO toArray uses correct API keys', function () {
     $dto = new AvailableProgramDTO('payment_installments', [3, 6, 9]);
     expect($dto->toArray())->toBe([
-        'type'                  => 'payment_installments',
+        'type' => 'payment_installments',
         'available_parts_count' => [3, 6, 9],
     ]);
 });
@@ -68,13 +68,13 @@ it('CreateOrderDTO holds all fields', function () {
 it('CreateOrderDTO toArray produces correct API payload', function () {
     $dto = makeCreateOrderDTO();
     expect($dto->toArray())->toBe([
-        'store_order_id'     => 'order-1',
-        'client_phone'       => '+380991234567',
-        'total_sum'          => 1000.0,
-        'invoice'            => ['number' => 'INV-001', 'date' => '2026-05-22'],
-        'products'           => [['name' => 'Phone', 'count' => 1, 'sum' => 1000.0]],
+        'store_order_id' => 'order-1',
+        'client_phone' => '+380991234567',
+        'total_sum' => 1000.0,
+        'invoice' => ['number' => 'INV-001', 'date' => '2026-05-22'],
+        'products' => [['name' => 'Phone', 'count' => 1, 'sum' => 1000.0]],
         'available_programs' => [['type' => 'payment_installments', 'available_parts_count' => [3, 6, 9]]],
-        'result_callback'    => 'https://example.com/callback',
+        'result_callback' => 'https://example.com/callback',
     ]);
 });
 

@@ -17,9 +17,9 @@ readonly class ReturnOrderDTO
     public function toArray(): array
     {
         $data = [
-            'order_id'             => $this->orderId,
-            'sum'                  => $this->sum,
-            'store_return_id'      => $this->storeReturnId,
+            'order_id' => $this->orderId,
+            'sum' => $this->sum,
+            'store_return_id' => $this->storeReturnId,
             'return_money_to_card' => $this->returnMoneyTo === ReturnMoneyTo::Card,
         ];
 
