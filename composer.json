@@ -29,5 +29,15 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rilong\\MonobankInstallments\\MonobankInstallmentsProvider"
+            ],
+            "aliases": {
+                "MonobankInstallments": "Rilong\\MonobankInstallments\\Facades\\MonobankInstallments"
+            }
+        }
     }
 }
