@@ -1,5 +1,7 @@
 <?php
 
+use Rilong\MonobankInstallments\Enums\OrderState;
+use Rilong\MonobankInstallments\Enums\OrderSubState;
 use Rilong\MonobankInstallments\Responses\CancelOrderResponse;
 use Rilong\MonobankInstallments\Responses\ConfirmOrderResponse;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
@@ -30,23 +32,23 @@ it('CreateOrderResponse is json_encodable', function () {
 // --- OrderStateResponse ---
 
 it('OrderStateResponse holds all fields', function () {
-    $r = new OrderStateResponse('uuid-1', 'IN_PROCESS', 'WAITING_FOR_CLIENT');
+    $r = new OrderStateResponse('uuid-1', OrderState::InProcess, OrderSubState::WaitingForClient);
     expect($r->orderId)->toBe('uuid-1')
-        ->and($r->state)->toBe('IN_PROCESS')
-        ->and($r->orderSubState)->toBe('WAITING_FOR_CLIENT');
+        ->and($r->state)->toBe(OrderState::InProcess)
+        ->and($r->orderSubState)->toBe(OrderSubState::WaitingForClient);
 });
 
 it('OrderStateResponse jsonSerialize returns snake_case keys', function () {
-    $r = new OrderStateResponse('uuid-1', 'SUCCESS', 'DONE');
+    $r = new OrderStateResponse('uuid-1', OrderState::Success, OrderSubState::Done);
     expect($r->jsonSerialize())->toBe([
-        'order_id'        => 'uuid-1',
-        'state'           => 'SUCCESS',
+        'order_id' => 'uuid-1',
+        'state' => 'SUCCESS',
         'order_sub_state' => 'DONE',
     ]);
 });
 
 it('OrderStateResponse __toString returns json', function () {
-    $r = new OrderStateResponse('uuid-1', 'SUCCESS', 'DONE');
+    $r = new OrderStateResponse('uuid-1', OrderState::Success, OrderSubState::Done);
     expect((string) $r)->toBe('{"order_id":"uuid-1","state":"SUCCESS","order_sub_state":"DONE"}');
 });
 

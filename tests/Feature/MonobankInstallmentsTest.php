@@ -5,6 +5,8 @@ use Rilong\MonobankInstallments\DTOs\AvailableProgramDTO;
 use Rilong\MonobankInstallments\DTOs\CreateOrderDTO;
 use Rilong\MonobankInstallments\DTOs\InvoiceDTO;
 use Rilong\MonobankInstallments\DTOs\ProductDTO;
+use Rilong\MonobankInstallments\Enums\OrderState;
+use Rilong\MonobankInstallments\Enums\OrderSubState;
 use Rilong\MonobankInstallments\Exceptions\MonobankInstallmentsException;
 use Rilong\MonobankInstallments\MonobankInstallments;
 use Rilong\MonobankInstallments\Responses\CancelOrderResponse;
@@ -93,8 +95,8 @@ it('getState() returns OrderStateResponse', function () {
 
     expect($response)->toBeInstanceOf(OrderStateResponse::class)
         ->and($response->orderId)->toBe('uuid-123')
-        ->and($response->state)->toBe('IN_PROCESS')
-        ->and($response->orderSubState)->toBe('WAITING_FOR_CLIENT');
+        ->and($response->state)->toBe(OrderState::InProcess)
+        ->and($response->orderSubState)->toBe(OrderSubState::WaitingForClient);
 });
 
 it('getState() sends order_id in payload', function () {

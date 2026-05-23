@@ -3,6 +3,8 @@
 namespace Rilong\MonobankInstallments;
 
 use Rilong\MonobankInstallments\DTOs\CreateOrderDTO;
+use Rilong\MonobankInstallments\Enums\OrderState;
+use Rilong\MonobankInstallments\Enums\OrderSubState;
 use Rilong\MonobankInstallments\Responses\CancelOrderResponse;
 use Rilong\MonobankInstallments\Responses\ConfirmOrderResponse;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
@@ -46,8 +48,8 @@ class MonobankInstallments
         $data = $this->client->post('state', ['order_id' => $orderId]);
         return new OrderStateResponse(
             $data['order_id'],
-            $data['state'],
-            $data['order_sub_state'],
+            OrderState::from($data['state']),
+            OrderSubState::from($data['order_sub_state']),
         );
     }
 
