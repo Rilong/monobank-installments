@@ -65,3 +65,27 @@ it('OrderResponse is json_encodable', function () {
     $r = new OrderResponse('uuid-1', OrderState::Success, OrderSubState::Done);
     expect(json_encode($r))->toBe('{"order_id":"uuid-1","state":"SUCCESS","order_sub_state":"DONE"}');
 });
+
+// --- ReturnOrderResponse ---
+
+use Rilong\MonobankInstallments\Responses\ReturnOrderResponse;
+
+it('ReturnOrderResponse holds status', function () {
+    $r = new ReturnOrderResponse('OK');
+    expect($r->status)->toBe('OK');
+});
+
+it('ReturnOrderResponse jsonSerialize returns status array', function () {
+    $r = new ReturnOrderResponse('OK');
+    expect($r->jsonSerialize())->toBe(['status' => 'OK']);
+});
+
+it('ReturnOrderResponse __toString returns json', function () {
+    $r = new ReturnOrderResponse('OK');
+    expect((string) $r)->toBe('{"status":"OK"}');
+});
+
+it('ReturnOrderResponse is json_encodable', function () {
+    $r = new ReturnOrderResponse('OK');
+    expect(json_encode($r))->toBe('{"status":"OK"}');
+});
