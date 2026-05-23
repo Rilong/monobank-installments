@@ -108,7 +108,7 @@ it('getState() sends order_id in payload', function () {
 });
 
 it('confirmOrder() returns ConfirmOrderResponse with success true', function () {
-    Http::fake(['*' => Http::response([], 200)]);
+    Http::fake(['*' => Http::response(['success' => true], 200)]);
 
     $response = (new MonobankInstallments())->confirmOrder('uuid-123');
 
@@ -117,7 +117,7 @@ it('confirmOrder() returns ConfirmOrderResponse with success true', function () 
 });
 
 it('confirmOrder() posts to /api/order/confirm', function () {
-    Http::fake(['*' => Http::response([], 200)]);
+    Http::fake(['*' => Http::response(['success' => true], 200)]);
 
     (new MonobankInstallments())->confirmOrder('uuid-123');
 
@@ -125,7 +125,7 @@ it('confirmOrder() posts to /api/order/confirm', function () {
 });
 
 it('cancelOrder() returns CancelOrderResponse with success true', function () {
-    Http::fake(['*' => Http::response([], 200)]);
+    Http::fake(['*' => Http::response(['success' => true], 200)]);
 
     $response = (new MonobankInstallments())->cancelOrder('uuid-123');
 
@@ -134,7 +134,7 @@ it('cancelOrder() returns CancelOrderResponse with success true', function () {
 });
 
 it('cancelOrder() posts to /api/order/reject', function () {
-    Http::fake(['*' => Http::response([], 200)]);
+    Http::fake(['*' => Http::response(['success' => true], 200)]);
 
     (new MonobankInstallments())->cancelOrder('uuid-123');
 
