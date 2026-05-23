@@ -13,6 +13,7 @@ use Rilong\MonobankInstallments\DTOs\ReturnAdditionalParamsDTO;
 use Rilong\MonobankInstallments\DTOs\ReturnOrderDTO;
 use Rilong\MonobankInstallments\Enums\ReturnMoneyTo;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
+use Rilong\MonobankInstallments\Responses\OrderDataResponse;
 use Rilong\MonobankInstallments\Responses\OrderResponse;
 use Rilong\MonobankInstallments\Responses\ReturnOrderResponse;
 
@@ -228,4 +229,103 @@ it('returnOrder() throws MonobankInstallmentsException on API error', function (
 
     expect(fn() => (new MonobankInstallments())->returnOrder($dto))
         ->toThrow(MonobankInstallmentsException::class, 'Order not found');
+});
+
+it('getOrderData() returns OrderDataResponse with all fields', function () {
+    Http::fake(['*' => Http::response([
+        'total_sum' => 2499.99,
+        'source' => 'INTERNET',
+        'invoice_number' => 'INV-001234',
+        'invoice_date' => '2024-01-23',
+        'point_id' => 'STORE-001',
+        'store_order_id' => 'ORD-2024-001234',
+        'create_timestamp' => null,
+        'reverse_list' => [
+            ['sum' => 500, 'timestamp' => '2024-01-23T10:00:00Z'],
+        ],
+        'maskedCard' => '5375 41** **** 1234',
+        'iban' => 'UA123456789012345678901234567',
+    ], 200)]);
+
+    $response = (new MonobankInstallments())->getOrderData('fa4a8249-336e-4e6d-9b85-79bc8be62377');
+
+    expect($response)->toBeInstanceOf(OrderDataResponse::class)
+        ->and($response->totalSum)->toBe(2499.99)
+        ->and($response->source)->toBe('INTERNET')
+        ->and($response->invoiceNumber)->toBe('INV-001234')
+        ->and($response->invoiceDate)->toBe('2024-01-23')
+        ->and($response->pointId)->toBe('STORE-001')
+        ->and($response->storeOrderId)->toBe('ORD-2024-001234')
+        ->and($response->createTimestamp)->toBeNull()
+        ->and($response->reverseList[0]->sum)->toBe(500.0)
+        ->and($response->reverseList[0]->timestamp)->toBe('2024-01-23T10:00:00Z')
+        ->and($response->maskedCard)->toBe('5375 41** **** 1234')
+        ->and($response->iban)->toBe('UA123456789012345678901234567');
+});
+
+it('getOrderData() posts to /api/order/data', function () {
+    Http::fake(['*' => Http::response([
+        'total_sum' => 2499.99,
+        'source' => 'INTERNET',
+        'invoice_number' => 'INV-001234',
+        'invoice_date' => '2024-01-23',
+        'point_id' => 'STORE-001',
+        'store_order_id' => 'ORD-2024-001234',
+        'create_timestamp' => null,
+        'reverse_list' => [],
+        'maskedCard' => '5375 41** **** 1234',
+        'iban' => 'UA123456789012345678901234567',
+    ], 200)]);
+
+    (new MonobankInstallments())->getOrderData('uuid-123');
+
+    Http::assertSent(fn($req) => str_ends_with($req->url(), '/api/order/data'));
+});
+
+it('getOrderData() sends order_id in payload', function () {
+    Http::fake(['*' => Http::response([
+        'total_sum' => 2499.99,
+        'source' => 'INTERNET',
+        'invoice_number' => 'INV-001234',
+        'invoice_date' => '2024-01-23',
+        'point_id' => 'STORE-001',
+        'store_order_id' => 'ORD-2024-001234',
+        'create_timestamp' => null,
+        'reverse_list' => [],
+        'maskedCard' => '5375 41** **** 1234',
+        'iban' => 'UA123456789012345678901234567',
+    ], 200)]);
+
+    (new MonobankInstallments())->getOrderData('uuid-123');
+
+    Http::assertSent(fn($req) => json_decode($req->body(), true)['order_id'] === 'uuid-123');
+});
+
+it('getOrderData() throws MonobankInstallmentsException on API error', function () {
+    Http::fake(['*' => Http::response(['message' => 'Order not found'], 404)]);
+
+    expect(fn() => (new MonobankInstallments())->getOrderData('uuid-123'))
+        ->toThrow(MonobankInstallmentsException::class, 'Order not found');
+});
+
+it('getOrderData() maps reverseList items including non-null timestamp', function () {
+    Http::fake(['*' => Http::response([
+        'total_sum' => 100.0,
+        'source' => 'STORE',
+        'invoice_number' => 'INV-1',
+        'invoice_date' => '2024-01-01',
+        'point_id' => 'P-1',
+        'store_order_id' => 'ORD-1',
+        'create_timestamp' => null,
+        'reverse_list' => [
+            ['sum' => 50.0, 'timestamp' => '2024-01-15T10:00:00Z'],
+        ],
+        'maskedCard' => '5375 41** **** 1234',
+        'iban' => 'UA123456789012345678901234567',
+    ], 200)]);
+
+    $response = (new MonobankInstallments())->getOrderData('uuid-123');
+
+    expect($response->reverseList[0]->sum)->toBe(50.0)
+        ->and($response->reverseList[0]->timestamp)->toBe('2024-01-15T10:00:00Z');
 });

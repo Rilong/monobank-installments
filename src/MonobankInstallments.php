@@ -7,6 +7,7 @@ use Rilong\MonobankInstallments\DTOs\ReturnOrderDTO;
 use Rilong\MonobankInstallments\Enums\OrderState;
 use Rilong\MonobankInstallments\Enums\OrderSubState;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
+use Rilong\MonobankInstallments\Responses\OrderDataResponse;
 use Rilong\MonobankInstallments\Responses\OrderResponse;
 use Rilong\MonobankInstallments\Responses\ReturnOrderResponse;
 
@@ -85,5 +86,12 @@ class MonobankInstallments
         $data = $this->client->post('return', $dto->toArray());
 
         return new ReturnOrderResponse($data['status']);
+    }
+
+    public function getOrderData(string $orderId): OrderDataResponse
+    {
+        $data = $this->client->post('data', ['order_id' => $orderId]);
+
+        return OrderDataResponse::from($data);
     }
 }
