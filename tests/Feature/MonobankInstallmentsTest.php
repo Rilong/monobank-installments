@@ -329,3 +329,45 @@ it('getOrderData() maps reverseList items including non-null timestamp', functio
     expect($response->reverseList[0]->sum)->toBe(50.0)
         ->and($response->reverseList[0]->timestamp)->toBe('2024-01-15T10:00:00Z');
 });
+
+it('checkPaid() returns CheckPaidResponse with correct values', function () {
+    Http::fake(['*' => Http::response([
+        'fully_paid' => true,
+        'bank_can_return_money_to_card' => true,
+    ], 200)]);
+
+    $response = (new MonobankInstallments())->checkPaid('fa4a8249-336e-4e6d-9b85-79bc8be62377');
+
+    expect($response)->toBeInstanceOf(\Rilong\MonobankInstallments\Responses\CheckPaidResponse::class)
+        ->and($response->fullyPaid)->toBeTrue()
+        ->and($response->bankCanReturnMoneyToCard)->toBeTrue();
+});
+
+it('checkPaid() posts to /api/order/check/paid', function () {
+    Http::fake(['*' => Http::response([
+        'fully_paid' => false,
+        'bank_can_return_money_to_card' => false,
+    ], 200)]);
+
+    (new MonobankInstallments())->checkPaid('uuid-123');
+
+    Http::assertSent(fn($req) => str_ends_with($req->url(), '/api/order/check/paid'));
+});
+
+it('checkPaid() sends order_id in payload', function () {
+    Http::fake(['*' => Http::response([
+        'fully_paid' => false,
+        'bank_can_return_money_to_card' => false,
+    ], 200)]);
+
+    (new MonobankInstallments())->checkPaid('uuid-123');
+
+    Http::assertSent(fn($req) => json_decode($req->body(), true)['order_id'] === 'uuid-123');
+});
+
+it('checkPaid() throws MonobankInstallmentsException on API error', function () {
+    Http::fake(['*' => Http::response(['message' => 'Order not found'], 404)]);
+
+    expect(fn() => (new MonobankInstallments())->checkPaid('uuid-123'))
+        ->toThrow(\Rilong\MonobankInstallments\Exceptions\MonobankInstallmentsException::class, 'Order not found');
+});

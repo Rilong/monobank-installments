@@ -6,6 +6,7 @@ use Rilong\MonobankInstallments\DTOs\CreateOrderDTO;
 use Rilong\MonobankInstallments\DTOs\ReturnOrderDTO;
 use Rilong\MonobankInstallments\Enums\OrderState;
 use Rilong\MonobankInstallments\Enums\OrderSubState;
+use Rilong\MonobankInstallments\Responses\CheckPaidResponse;
 use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
 use Rilong\MonobankInstallments\Responses\OrderDataResponse;
 use Rilong\MonobankInstallments\Responses\OrderResponse;
@@ -93,5 +94,15 @@ class MonobankInstallments
         $data = $this->client->post('data', ['order_id' => $orderId]);
 
         return OrderDataResponse::from($data);
+    }
+
+    public function checkPaid(string $orderId): CheckPaidResponse
+    {
+        $data = $this->client->post('check/paid', ['order_id' => $orderId]);
+
+        return new CheckPaidResponse(
+            fullyPaid: $data['fully_paid'],
+            bankCanReturnMoneyToCard: $data['bank_can_return_money_to_card'],
+        );
     }
 }
