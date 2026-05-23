@@ -2,8 +2,64 @@
 
 namespace Rilong\MonobankInstallments;
 
+use Rilong\MonobankInstallments\DTOs\CreateOrderDTO;
+use Rilong\MonobankInstallments\Responses\CancelOrderResponse;
+use Rilong\MonobankInstallments\Responses\ConfirmOrderResponse;
+use Rilong\MonobankInstallments\Responses\CreateOrderResponse;
+use Rilong\MonobankInstallments\Responses\OrderStateResponse;
 
 class MonobankInstallments
 {
-    // Class implementation
+    private static string $storeId = '';
+    private static string $storeSecret = '';
+    private static string $baseUrl = 'https://u2.monobank.com.ua';
+
+    private MonobankClient $client;
+
+    public static function configure(
+        string $storeId,
+        string $storeSecret,
+        string $baseUrl = 'https://u2.monobank.com.ua',
+    ): void {
+        static::$storeId     = $storeId;
+        static::$storeSecret = $storeSecret;
+        static::$baseUrl     = $baseUrl;
+    }
+
+    public function __construct()
+    {
+        $this->client = new MonobankClient(
+            static::$storeId,
+            static::$storeSecret,
+            static::$baseUrl,
+        );
+    }
+
+    public function createOrder(CreateOrderDTO $dto): CreateOrderResponse
+    {
+        $data = $this->client->post('create', $dto->toArray());
+        return new CreateOrderResponse($data['order_id']);
+    }
+
+    public function getState(string $orderId): OrderStateResponse
+    {
+        $data = $this->client->post('state', ['order_id' => $orderId]);
+        return new OrderStateResponse(
+            $data['order_id'],
+            $data['state'],
+            $data['order_sub_state'],
+        );
+    }
+
+    public function confirmOrder(string $orderId): ConfirmOrderResponse
+    {
+        $this->client->post('confirm', ['order_id' => $orderId]);
+        return new ConfirmOrderResponse(true);
+    }
+
+    public function cancelOrder(string $orderId): CancelOrderResponse
+    {
+        $this->client->post('reject', ['order_id' => $orderId]);
+        return new CancelOrderResponse(true);
+    }
 }
